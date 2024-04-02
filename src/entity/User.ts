@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from "typeorm";
 import { Card } from "./Card";
+import { Account } from "./Account";
 
 @Entity({ name: "users" })
 export class User {
@@ -24,4 +25,11 @@ export class User {
   })
   @JoinColumn()
   card: Card;
+
+  @OneToOne(() => Account, (account) => account.user, {
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
+  @JoinColumn()
+  account: Account;
 }
