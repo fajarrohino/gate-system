@@ -2,9 +2,10 @@ import { And, Repository } from "typeorm";
 import { User } from "../entity/User";
 import { AppDataSource } from "../data-source";
 import { Request, Response } from "express";
-import { registerLocationSchema, registerSchema } from "../utils/validator/authValidator";
+import { registerBankSchema, registerLocationSchema, registerSchema } from "../utils/validator/authValidator";
 import { Card } from "../entity/Card";
 import { Location } from "../entity/Location";
+import { Bank } from "../entity/Bank";
 
 class AuthServices {
   private readonly userRepository: Repository<User> = AppDataSource.getRepository(User);
@@ -13,6 +14,7 @@ class AuthServices {
 
   private readonly locationRepository: Repository<Location> = AppDataSource.getRepository(Location);
 
+  private readonly bankRepository: Repository<Bank> = AppDataSource.getRepository(Bank);
   async registerUser(req: Request, res: Response) {
     try {
       const { fullName, username, numberCard } = req.body;
@@ -72,6 +74,35 @@ class AuthServices {
       });
       const newLocation = await this.locationRepository.save(createLocation);
       return res.status(200).json(`SUCCESS REGISTER ${newLocation}`);
+    } catch (error) {
+      return res.status(400).json({ message: "FAILED REGISTER!", error: error.message });
+    }
+  }
+
+  async registerBank(req: Request, res: Response) {
+    try {
+      const { name, codeId } = req.body;
+      const { value, error } = registerBankSchema.validate(req.body);
+      if (error) {
+        return res.status(422).json(error.details[0].message);
+      }
+
+      const checkCode = await this.bankRepository.count({
+        where: { codeId: value.codeId },
+      });
+
+      const checkName = await this.bankRepository.count({
+        where: { name: value.name },
+      });
+
+      if (checkCode > 0 || checkName > 0) {
+        return res.status(200).json("NAME OR CODE ALREADY REGISTERED!");
+      }
+
+      const createBank = this.bankRepository.create({ name, codeId });
+
+      const saveBank = await this.bankRepository.save(createBank);
+      return res.status(200).json(`SUCCESS REGISTER BANK ${saveBank}`);
     } catch (error) {
       return res.status(400).json({ message: "FAILED REGISTER!", error: error.message });
     }

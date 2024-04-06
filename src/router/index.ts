@@ -15,6 +15,9 @@ router.post("/auth/register", AuthController.registerUser);
 // ROUTE REGISTER  LOCATION GATE
 router.post("/auth/register/gate", AuthController.registerGate);
 
+// ROUTE REGISTER BANK
+router.post("/auth/register/bank", AuthController.registerBank);
+
 // ROUTE LOCATION GATE
 router.post("/gate/priok", GateController.gatePriok);
 router.post("/gate/juanda", GateController.gateJuanda);

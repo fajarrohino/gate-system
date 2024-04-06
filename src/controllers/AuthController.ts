@@ -9,5 +9,9 @@ class AuthController {
   registerGate(req: Request, res: Response) {
     AuthServices.registerLocation(req, res);
   }
+
+  registerBank(req: Request, res: Response) {
+    AuthServices.registerBank(req, res);
+  }
 }
 export default new AuthController();

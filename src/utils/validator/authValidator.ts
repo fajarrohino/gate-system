@@ -9,3 +9,8 @@ export const registerSchema = joi.object().keys({
 export const registerLocationSchema = joi.object().keys({
   name: joi.string().required().max(30).min(5),
 });
+
+export const registerBankSchema = joi.object().keys({
+  name: joi.string().required().max(20).min(2),
+  codeId: joi.string().required().max(3),
+});

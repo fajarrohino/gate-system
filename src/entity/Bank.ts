@@ -10,7 +10,7 @@ export class Bank {
   name: string;
 
   @Column()
-  code: number;
+  codeId: string;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createAt: Date;
