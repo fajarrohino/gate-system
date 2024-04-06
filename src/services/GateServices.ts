@@ -3,7 +3,7 @@ import { Card } from "../entity/Card";
 import { AppDataSource } from "../data-source";
 import { Activity } from "../entity/Activity";
 import { Location } from "../entity/Location";
-import { Request, Response, application } from "express";
+import { Request, Response } from "express";
 import { Account } from "../entity/Account";
 import { Transaction } from "../entity/Transaction";
 

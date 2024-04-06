@@ -6,7 +6,6 @@ import { registerBankSchema, registerLocationSchema, registerSchema } from "../u
 import { Card } from "../entity/Card";
 import { Location } from "../entity/Location";
 import { Bank } from "../entity/Bank";
-import { request } from "http";
 import { Account } from "../entity/Account";
 
 class AuthServices {
@@ -25,14 +24,14 @@ class AuthServices {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
     function generatePanCard(req: Request) {
-      const { bank } = req.body;
-      if (bank === "BRI") {
+      const { nameBank } = req.body;
+      if (nameBank === "BRI") {
         const panCardPerfix = "1451";
         const panCardBranch = "01";
         const randomNumber = generateRandomNumber(100000, 999999).toString();
         const randomNUmber2 = generateRandomNumber(100, 999).toString();
         return panCardPerfix + panCardBranch + randomNumber + randomNUmber2;
-      } else if (bank === "BCA") {
+      } else if (nameBank === "BCA") {
         const panCardBranch = "1541";
         const randomNumber = generateRandomNumber(100000, 999999).toString();
         return panCardBranch + randomNumber;
@@ -40,12 +39,12 @@ class AuthServices {
     }
 
     function generateNumberCard(req: Request) {
-      const { bank } = req.body;
-      if (bank === "BRI") {
+      const { nameBank } = req.body;
+      if (nameBank === "BRI") {
         const codeBRI = "02";
         const getRandomNumber = generateRandomNumber(1000000000, 9999999999).toString();
         return codeBRI + getRandomNumber;
-      } else if (bank === "BCA") {
+      } else if (nameBank === "BCA") {
         const codeBRI = "14";
         const getRandomNumber = generateRandomNumber(1000000000, 9999999999).toString();
         return codeBRI + getRandomNumber;
@@ -56,10 +55,8 @@ class AuthServices {
       const { fullName, username, mobileNo, balance } = req.body;
       const panCard = generatePanCard(req);
       const numberCard = generateNumberCard(req);
-      // console.log("panCard: ", panCard);
-      // console.log("numberCard: ", numberCard);
-
       const { error, value } = registerSchema.validate(req.body);
+
       if (error) {
         return res.status(422).json(error.details[0].message);
       }
@@ -68,8 +65,14 @@ class AuthServices {
         where: { mobileNo: value.mobileNo },
       });
 
+      const checkBank = await this.bankRepository.findOne({
+        where: { nameBank: value.nameBank },
+      });
+
       if (checkMobileNo > 0) {
         return res.status(200).json("NO MOBILE ALREADY REGISTERED!");
+      } else if (!checkBank) {
+        return res.status(200).json("BANK NOT FOUND!");
       }
 
       const newCard = this.cardRepository.create({
@@ -81,10 +84,10 @@ class AuthServices {
 
       const newAccount = this.accountRepository.create({
         balance,
+        bank: { id: checkBank.id },
       });
 
       const saveAccount = await this.accountRepository.save(newAccount);
-      // console.log("account: ", saveAccount);
 
       const newUser = this.userRepository.create({
         fullName,
@@ -96,49 +99,11 @@ class AuthServices {
       });
 
       const saveUser = await this.userRepository.save(newUser);
-      // console.log("user: ", saveUser);
+
       return res.status(200).json(`SUCCESS REGISTER ${saveUser}, NO REK : ${panCard} and NO CARD : ${numberCard}`);
     } catch (error) {
       res.status(400).json({ message: "FAILED REGISTER!", error: error.message });
     }
-    // try {
-    //   const { fullName, username, numberCard } = req.body;
-    //   const { error, value } = registerSchema.validate(req.body);
-
-    //   if (error) {
-    //     return res.status(422).json(error.details[0].message);
-    //   }
-
-    //   const checkNumberCard = await this.cardRepository.count({
-    //     where: { numberCard: value.numberCard },
-    //   });
-
-    //   const checkUsername = await this.userRepository.count({
-    //     where: { username: value.username },
-    //   });
-
-    //   if (checkUsername > 0) {
-    //     return res.status(200).json("USERNAME ALREADY REGISTERED!");
-    //   } else if (checkNumberCard > 0) {
-    //     return res.status(200).json("CARD ALREADY REGISTERED!");
-    //   }
-
-    //   const newCard = this.cardRepository.create({ numberCard });
-
-    //   const savedCard = await this.cardRepository.save(newCard);
-
-    //   const newUser = this.userRepository.create({
-    //     fullName,
-    //     username,
-    //     card: savedCard,
-    //   });
-
-    //   const createUser = await this.userRepository.save(newUser);
-
-    //   return res.status(200).json(`SUCCESS REGISTER ${createUser}`);
-    // } catch (error) {
-    //   res.status(400).json({ message: "FAILED REGISTER!", error: error.message });
-    // }
   }
 
   async registerLocation(req: Request, res: Response) {
@@ -167,25 +132,27 @@ class AuthServices {
 
   async registerBank(req: Request, res: Response) {
     try {
-      const { name, codeId } = req.body;
+      const { nameBank, codeBank } = req.body;
       const { value, error } = registerBankSchema.validate(req.body);
       if (error) {
         return res.status(422).json(error.details[0].message);
       }
 
       const checkCode = await this.bankRepository.count({
-        where: { codeId: value.codeId },
+        where: { codeBank: value.codeBank },
       });
 
       const checkName = await this.bankRepository.count({
-        where: { name: value.name },
+        where: { nameBank: value.nameBank },
       });
 
-      if (checkCode > 0 || checkName > 0) {
-        return res.status(200).json("NAME OR CODE ALREADY REGISTERED!");
+      if (checkCode > 0) {
+        return res.status(200).json("CODE ALREADY REGISTERED!");
+      } else if (checkName > 0) {
+        return res.status(200).json("NAME ALREADY REGISTERED!");
       }
 
-      const createBank = this.bankRepository.create({ name, codeId });
+      const createBank = this.bankRepository.create({ nameBank, codeBank });
 
       const saveBank = await this.bankRepository.save(createBank);
       return res.status(200).json(`SUCCESS REGISTER BANK ${saveBank}`);

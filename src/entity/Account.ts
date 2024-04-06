@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
 import { Bank } from "./Bank";
 import { Transaction } from "./Transaction";
@@ -26,11 +26,7 @@ export class Account {
   })
   user: User;
 
-  @OneToOne(() => Bank, (bank) => bank.account, {
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
-  @JoinColumn()
+  @ManyToOne(() => Bank, (bank) => bank.accountId)
   bank: Bank;
 
   @OneToMany(() => Transaction, (transactions) => transactions.account, {
