@@ -9,6 +9,8 @@ export class Location {
   @Column()
   name: string;
 
+  @Column()
+  gateId: number;
   // @Column()
   // cost: number;
 

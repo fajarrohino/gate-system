@@ -35,7 +35,7 @@ class GateServices {
           return res.status(200).json("CARD IS NOT ACTIVE!");
         }
         const existingLocation = await this.locationRepository.findOne({
-          where: { id: 1 },
+          where: { gateId: 1 },
         });
 
         const activityLog = await this.activityRepository.findOne({
@@ -99,7 +99,7 @@ class GateServices {
           return res.status(200).json("CARD IS NOT ACTIVE!");
         }
         const existingLocation = await this.locationRepository.findOne({
-          where: { id: 2 },
+          where: { gateId: 2 },
         });
 
         const activityLog = await this.activityRepository.findOne({

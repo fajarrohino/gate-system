@@ -13,6 +13,12 @@ export class User {
   @Column()
   username: string;
 
+  @Column()
+  panCard: string;
+
+  @Column()
+  mobileNo: string;
+
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createAt: Date;
 

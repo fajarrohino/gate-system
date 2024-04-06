@@ -8,7 +8,7 @@ export class Card {
   id: number;
 
   @Column()
-  numberCard: number;
+  numberCard: string;
 
   @Column({ default: 1 })
   status: number;
