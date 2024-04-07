@@ -2,6 +2,7 @@ import * as express from "express";
 import { Request, Response } from "express";
 import AuthController from "../controllers/AuthController";
 import GateController from "../controllers/GateController";
+import CheckController from "../controllers/CheckController";
 
 const router = express.Router();
 
@@ -21,5 +22,8 @@ router.post("/auth/register/bank", AuthController.registerBank);
 // ROUTE LOCATION GATE
 router.post("/gate/priok", GateController.gatePriok);
 router.post("/gate/juanda", GateController.gateJuanda);
+
+// ROUTE CHECK NO REK AND NO CARD
+router.post("/check", CheckController.checkUser);
 
 export default router;
