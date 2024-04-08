@@ -15,23 +15,24 @@ class CheckServices {
 
   async checkUser(req: Request, res: Response) {
     try {
-      const { name } = req.body;
+      // const { mobileNO } = req.body;
       const { error, value } = checkSchema.validate(req.body);
       if (error) {
         res.status(422).json(error.details[0].message);
       }
 
       const checkUser = await this.userRepository.findOne({
-        where: { username: name },
+        where: { mobileNo: value.mobileNO },
         relations: { account: true, card: true },
       });
+
       if (!checkUser) {
         return res.status(200).json("USERNAME NOT FOUND!");
-      } else {
-        const getNumberCard = checkUser.card.numberCard;
-        const getPanCard = checkUser.panCard;
-        return res.status(200).json(`NO Card = ${getNumberCard}, NO Rek = ${getPanCard}`);
       }
+
+      const getNumberCard = checkUser.card.numberCard;
+      const getPanCard = checkUser.panCard;
+      return res.status(200).json(`NO Card = ${getNumberCard}, NO Rek = ${getPanCard}`);
     } catch (error) {}
   }
 }
