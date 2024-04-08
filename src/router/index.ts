@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import AuthController from "../controllers/AuthController";
 import GateController from "../controllers/GateController";
 import CheckController from "../controllers/CheckController";
+import UpdateController from "../controllers/UpdateController.ts";
 
 const router = express.Router();
 
@@ -25,5 +26,8 @@ router.post("/gate/juanda", GateController.gateJuanda);
 
 // ROUTE CHECK NO REK AND NO CARD
 router.post("/check", CheckController.checkUser);
+
+// ROUTE TOP UP
+router.get("/topup/:id", UpdateController.topUp);
 
 export default router;
