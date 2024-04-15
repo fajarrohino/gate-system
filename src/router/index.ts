@@ -28,6 +28,12 @@ router.post("/gate/juanda", GateController.gateJuanda);
 router.post("/check", CheckController.checkUser);
 
 // ROUTE TOP UP
-router.get("/topup/:id", UpdateController.topUp);
+router.put(
+  "/topup",
+  UpdateController.topUp
+  // (req: Request, res: Response) => {
+  //   res.send("hallo")
+  // }
+);
 
 export default router;
