@@ -32,7 +32,8 @@ class CheckServices {
 
       const getNumberCard = checkUser.card.numberCard;
       const getPanCard = checkUser.panCard;
-      return res.status(200).json(`NO Card = ${getNumberCard}, NO Rek = ${getPanCard}`);
+      const getBalance = checkUser.account.balance;
+      return res.status(200).json(`NO Card = ${getNumberCard}, NO Rek = ${getPanCard}, Saldo = ${getBalance}`);
     } catch (error) {}
   }
 }
