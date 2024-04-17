@@ -6,6 +6,7 @@ import { Location } from "../entity/Location";
 import { Request, Response } from "express";
 import { Account } from "../entity/Account";
 import { Transaction } from "../entity/Transaction";
+import { User } from "../entity/User";
 
 class GateServices {
   private readonly cardRepository: Repository<Card> = AppDataSource.getRepository(Card);
@@ -13,24 +14,30 @@ class GateServices {
   private readonly locationRepository: Repository<Location> = AppDataSource.getRepository(Location);
   private readonly accountRepository: Repository<Account> = AppDataSource.getRepository(Account);
   private readonly transactionsRepository: Repository<Transaction> = AppDataSource.getRepository(Transaction);
+  private readonly userRepository: Repository<User> = AppDataSource.getRepository(User);
 
   async gateActivityPriok(req: Request, res: Response) {
     try {
       const { numberCard } = req.body;
 
-      const existingCard = await this.cardRepository.findOne({
+      const getUser = await this.userRepository.findOne({
         where: {
-          numberCard: numberCard,
+          card: { numberCard: numberCard },
         },
+        relations: { account: true, card: true },
       });
+      console.log(getUser.account.id);
 
-      if (existingCard) {
+      // return res.status(200).json("done!");
+      if (getUser) {
         const activeCard = await this.cardRepository.findOne({
           where: {
             numberCard: numberCard,
             status: 1,
           },
         });
+        // console.log(activeCard);
+        // return res.status(200).json("done");
         if (!activeCard) {
           return res.status(200).json("CARD IS NOT ACTIVE!");
         }
@@ -40,7 +47,7 @@ class GateServices {
 
         const activityLog = await this.activityRepository.findOne({
           where: {
-            card: { id: existingCard.id },
+            card: { numberCard: getUser.card.numberCard },
             status: 1,
             gate: "IN",
           },
@@ -49,24 +56,31 @@ class GateServices {
           },
         });
 
+        console.log("activityLog: ", activityLog);
+
+        // return res.status(200).json("WELCOME TO GATE PRIOK!");
+        // return res.status(200).json("done");
+
         if (activityLog) {
-          const currentDate = new Date();
-          const newActivity = await this.activityRepository.update(activityLog.id, {
-            status: 0,
-            gate: "OUT",
-            location: { id: existingLocation.id },
-            date: currentDate,
-          });
-          // transaction gate out
-          // cek balance tidak dibawah limit Rp.5000
-          // update transactions card ke gate
-          console.log("SUCCESS UPDATE = ", newActivity);
+          const payGate = await this.transactionsRepository.create({
+            type: "PayGate",
+            fromAccountId: getUser.account.id,
+            toAccountId: 
+          })
+          // const currentDate = new Date();
+          // const newActivity = await this.activityRepository.update(activityLog.id, {
+          //   status: 0,
+          //   gate: "OUT",
+          //   location: { id: existingLocation.id },
+          //   date: currentDate,
+          // });
+          // console.log("SUCCESS UPDATE = ", newActivity);
           return res.status(200).json("BE CAREFULE! \n COST WILL BE COMING SOON😜");
         } else {
           const newActivity = this.activityRepository.create({
             status: 1,
             gate: "IN",
-            card: existingCard,
+            card: getUser,
             location: existingLocation,
           });
           await this.activityRepository.save(newActivity);
