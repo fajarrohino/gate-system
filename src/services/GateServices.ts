@@ -5,7 +5,6 @@ import { Activity } from "../entity/Activity";
 import { Location } from "../entity/Location";
 import { Request, Response } from "express";
 import { Account } from "../entity/Account";
-import { Transaction } from "../entity/Transaction";
 import { User } from "../entity/User";
 
 class GateServices {
@@ -13,7 +12,6 @@ class GateServices {
   private readonly activityRepository: Repository<Activity> = AppDataSource.getRepository(Activity);
   private readonly locationRepository: Repository<Location> = AppDataSource.getRepository(Location);
   private readonly accountRepository: Repository<Account> = AppDataSource.getRepository(Account);
-  private readonly transactionsRepository: Repository<Transaction> = AppDataSource.getRepository(Transaction);
   private readonly userRepository: Repository<User> = AppDataSource.getRepository(User);
 
   async gateActivityPriok(req: Request, res: Response) {
@@ -27,8 +25,8 @@ class GateServices {
         relations: { account: true, card: true },
       });
       console.log(getUser.account.id);
-
       // return res.status(200).json("done!");
+
       if (getUser) {
         const activeCard = await this.cardRepository.findOne({
           where: {
@@ -62,19 +60,20 @@ class GateServices {
         // return res.status(200).json("done");
 
         if (activityLog) {
-          const payGate = await this.transactionsRepository.create({
-            type: "PayGate",
-            fromAccountId: getUser.account.id,
-            toAccountId: 
-          })
-          // const currentDate = new Date();
-          // const newActivity = await this.activityRepository.update(activityLog.id, {
-          //   status: 0,
-          //   gate: "OUT",
-          //   location: { id: existingLocation.id },
-          //   date: currentDate,
-          // });
-          // console.log("SUCCESS UPDATE = ", newActivity);
+          const fromPanCard = getUser.panCard;
+          console.log("this from rek: ", fromPanCard);
+
+          // create transfer !
+
+          const currentDate = new Date();
+          const newActivity = await this.activityRepository.update(activityLog.id, {
+            status: 0,
+            gate: "OUT",
+            location: { id: existingLocation.id },
+            date: currentDate,
+          });
+          console.log("SUCCESS UPDATE = ", newActivity);
+
           return res.status(200).json("BE CAREFULE! \n COST WILL BE COMING SOON😜");
         } else {
           const newActivity = this.activityRepository.create({

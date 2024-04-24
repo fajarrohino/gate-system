@@ -1,7 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "./User";
+import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Bank } from "./Bank";
-import { Transaction } from "./Transaction";
+import { User } from "./User";
+import { TransferFrom } from "./TransferFrom";
+import { TransferTo } from "./TransferTo";
 
 @Entity({ name: "accounts" })
 export class Account {
@@ -29,9 +30,9 @@ export class Account {
   @ManyToOne(() => Bank, (bank) => bank.accountId)
   bank: Bank;
 
-  @OneToMany(() => Transaction, (transactions) => transactions.account, {
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
-  })
-  transactions: Transaction[];
+  @OneToMany(() => TransferFrom, (transferFrom) => transferFrom.account)
+  transferFromId: TransferFrom[];
+
+  @OneToMany(() => TransferTo, (transferTo) => transferTo.account)
+  transferToId: TransferTo[];
 }
